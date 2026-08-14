@@ -20,8 +20,8 @@ int baseAngle = 90;
 int shoulderAngle = 145; 
 int elbowAngle = 130; 
 
-int wrist_pAngle = 90; //currently unactive
-int wrist_rAngle = 20; 
+int wrist_pAngle = 20; 
+int wrist_rAngle = 20; //currently unactive 
 int gripper = 90; 
 
 
@@ -68,11 +68,11 @@ void loop() { //velocity-style control
     //SHOULDER
     if (x1_val < 450)
     {
-      shoulderAngle -= 1;
+      shoulderAngle += 1;
     }
     else if (x1_val > 574)
     {
-      shoulderAngle += 1;
+      shoulderAngle -= 1;
     }
 
 
@@ -87,7 +87,7 @@ void loop() { //velocity-style control
     }
 
 
-    //WRIST ROTATION
+    //WRIST PITCH
     if (y2_val < 450)
     {
       wrist_pAngle -= 1;
@@ -111,13 +111,13 @@ void loop() { //velocity-style control
     
     baseAngle = constrain(baseAngle, 40, 140); //constraint for base joint
     shoulderAngle = constrain(shoulderAngle, 40, 150); //constraint for shoulder joint
-    elbowAngle = constrain(elbowAngle, 20, 160); //constraint for shoulder joint
-    wrist_rAngle = constrain(wrist_rAngle, 20, 160); //constraint for shoulder joint
+    elbowAngle = constrain(elbowAngle, 0, 180); //constraint for elbow joint
+    wrist_pAngle = constrain(wrist_pAngle, 20, 160); //constraint for wrist pitch joint
 
     setServoAngle(0, baseAngle); //move servo to stored position
     setServoAngle(1, shoulderAngle); 
     setServoAngle(2, elbowAngle);
-    setServoAngle(4, wrist_rAngle);
+    setServoAngle(4, wrist_pAngle);
 
     delay(20);
 }
