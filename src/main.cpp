@@ -6,13 +6,18 @@
 Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
 
 //arduino connection pins
-const int x1 = A0; 
-const int y1 = A1; 
-const int x2 = A2; 
-const int y2 = A3; 
+// ESP32-S3 connection pins
+const int joy1X = 4;
+const int joy1Y = 5;
+const int joy2X = 6;
+const int joy2Y = 7;
 
-const int sw1 = 2; //push-button for open
-const int sw2 = 3; //push-button for close
+const int sw1 = 15; // push-button for open
+const int sw2 = 16; // push-button for close
+
+// PCA9685 I2C pins
+const int SDA_PIN = 8;
+const int SCL_PIN = 9;
 
 //store servo position for each joint/servo
 //initial values act as the "Home Position" settings for the arm 
@@ -36,18 +41,41 @@ void setServoAngle(int channel, int angle)
 } //convert pulse values into readable angle values
 
 void setup() {
-  pwm.begin();
-  pwm.setPWMFreq(50);
-  pinMode(sw1, INPUT_PULLUP);
-  pinMode(sw2, INPUT_PULLUP);
+    Wire.begin(SDA_PIN, SCL_PIN);
+
+    Serial.begin(115200);
+    analogReadResolution(10);
+
+    pwm.begin();
+    pwm.setPWMFreq(50);
+
+    pinMode(sw1, INPUT_PULLUP);
+    pinMode(sw2, INPUT_PULLUP);
 }
 
-void loop() { //velocity-style control
-    int x1_val = analogRead(x1); //read x value of joystick 1
-    int y1_val = analogRead(y1); //read y value of joystick 1
+// void loop() {
+//     Serial.print("X1: ");
+//     Serial.print(analogRead(joy1X));
 
-    int x2_val = analogRead(x2); //read x value of joystick 2 
-    int y2_val = analogRead(y2); //read y value of joystick 2
+//     Serial.print(" | Y1: ");
+//     Serial.print(analogRead(joy1Y));
+
+//     Serial.print(" | X2: ");
+//     Serial.print(analogRead(joy2X));
+
+//     Serial.print(" | Y2: ");
+//     Serial.println(analogRead(joy2Y));
+
+//     delay(200);
+// }
+
+
+void loop() { //velocity-style control
+    int x1_val = analogRead(joy1X); //read x value of joystick 1
+    int y1_val = analogRead(joy1Y); //read y value of joystick 1
+
+    int x2_val = analogRead(joy2X); //read x value of joystick 2 
+    int y2_val = analogRead(joy2Y); //read y value of joystick 2
 
 
     /*Joystick was physically rotated to simplify wriring while maintaining
@@ -55,44 +83,44 @@ void loop() { //velocity-style control
     were swapped in software 
     */
     //BASE
-    if (y1_val < 450)
+    if (y1_val < 380)
     {                      //left --> dec servo angle(go left)
       baseAngle -= 1; 
     }
-    else if (y1_val > 574)
+    else if (y1_val > 500)
     { //right --> inc servo angle(go right)
       baseAngle += 1; 
     }
 
 
     //SHOULDER
-    if (x1_val < 450)
+    if (x1_val < 380)
     {
       shoulderAngle += 1;
     }
-    else if (x1_val > 574)
+    else if (x1_val > 500)
     {
       shoulderAngle -= 1;
     }
 
 
     //ELBOW
-    if (x2_val < 450)
+    if (x2_val < 380)
     {                      //left --> dec servo angle(go left)
       elbowAngle -= 1; 
     }
-    else if (x2_val > 574)
+    else if (x2_val > 500)
     { //right --> inc servo angle(go right)
       elbowAngle += 1; 
     }
 
 
     //WRIST PITCH
-    if (y2_val < 450)
+    if (y2_val < 380)
     {
       wrist_pAngle -= 1;
     }
-    else if (y2_val > 574)
+    else if (y2_val > 500)
     {
       wrist_pAngle += 1;
     }
@@ -121,3 +149,6 @@ void loop() { //velocity-style control
 
     delay(20);
 }
+
+
+
